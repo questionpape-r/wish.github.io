@@ -1,19 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Happy Valentine's Day</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>From My Heart: Will You Be My Valentine?</title>
+  <style>
+    /* Animated gradient background for a warm, cheerful vibe */
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(45deg, #ff9a9e, #fad0c4, #ffe0e6);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: 'Georgia', serif;
+      color: #333;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      position: relative;
+      max-width: 90%;
+      overflow: hidden;
+    }
+    /* Heartfelt introduction text */
+    #heartMessage {
+      font-size: 1.4em;
+      margin-bottom: 10px;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+    }
+    /* Main interactive question text */
+    #questionText {
+      font-size: 2em;
+      margin: 20px 0;
+      opacity: 0;
+      animation: fadeIn 2s forwards;
+      animation-delay: 1s;
+    }
+    /* Fade-in animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Styling for the GIF element */
+    #media {
+      width: 250px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      transition: transform 0.5s ease;
+    }
+    .btn {
+      padding: 15px 25px;
+      font-size: 1.2em;
+      margin: 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s, background-color 0.3s;
+    }
+    #yes {
+      background-color: #ff6b81;
+      color: white;
+    }
+    #no {
+      background-color: #a2d2ff;
+      color: white;
+    }
+    /* Falling hearts confetti */
+    .heart {
+      position: absolute;
+      font-size: 2em;
+      animation: fall 3s linear infinite;
+      opacity: 0.8;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-50px) rotate(0deg); }
+      100% { transform: translateY(300px) rotate(360deg); }
+    }
+    /* Exploding pieces for the "No" button */
+    @keyframes explode {
+      from {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0deg);
+      }
+      to {
+        opacity: 0;
+        transform: translate(var(--dx), var(--dy)) rotate(var(--deg));
+      }
+    }
+    .piece {
+      position: absolute;
+      background: #a2d2ff;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      pointer-events: none;
+      animation: explode 1s forwards ease-out;
+    }
+    /* Final celebratory GIF styling */
+    #finalGif {
+      width: 300px;
+      border-radius: 10px;
+      margin-top: 20px;
+      animation: fadeIn 2s forwards;
+    }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1 id="valentineMessage">Happy Valentine's Day!</h1>
-        <p>Wishing you a day filled with love and happiness.</p>
-    </div>
-    <script src="script.js"></script>
-</body>
+  <div class="container" id="mainContainer">
+    <!-- Heartfelt introduction -->
+    <p id="heartMessage"> <p>
+    <!-- Media element using a local GIF file -->
+    <video id="media" src="WhatsApp Video 2025-02-13 at 16.27.55.mp4" Autoplay loop muted ></video>
+    <!-- Main interactive question -->
+    <h2 id="questionText"> Hey sweetheart 💗 your question paper have a new question for you 
+        <br> 
+        <br>  Will You Be My Valentine?</h2>
+    <!-- Interactive buttons -->
+    <button id="yes" class="btn">Yes</button>
+    <button id="no" class="btn">No</button>
+  </div>
 
+  <script>
+    // Array of local GIF file names (ensure these files are in the same folder as this HTML file)
+    const gifArray = [
+      "2.mp4",   // Initial GIF (matches the one in the <img> tag)
+      "3.mp4",   // 1st "No" click
+      "6.mp4",   // 2nd "No" click
+      "5.mp4",   // 3rd "No" click
+      "1.mp4"    // 4th "No" click and beyond
+      
+    ];
+    
+    // Dynamic messages to appear after each "No" click
+    const messageArray = [
+      "I think You didn't understand.... let me ask again.......... నువ్వు నా వాలెంటైన్ అవుతావా?",
+      "Are you serious ? Think again",
+      "Let your heart guide you—please say 'Yes'!",
+      "You are being mean now! if you press no i will destroy the  NO button "
+    ];
+    
+    let noCount = 0;
+    const maxNo = 5; // After 5 'No' clicks, break the button into pieces.
+    
+    const media = document.getElementById("media");
+    const yesBtn = document.getElementById("yes");
+    const noBtn = document.getElementById("no");
+    const questionText = document.getElementById("questionText");
+    const container = document.getElementById("mainContainer");
+    
+    // Function to simulate breaking the "No" button into pieces
+    function breakNoButton() {
+      const btnRect = noBtn.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const offsetX = btnRect.left - containerRect.left;
+      const offsetY = btnRect.top - containerRect.top;
+      
+      // Remove the No button from the DOM
+      noBtn.remove();
+      
+      // Create several pieces to simulate the break
+      for (let i = 0; i < 4; i++) {
+        const piece = document.createElement("div");
+        piece.className = "piece";
+        piece.innerText = "No";
+        piece.style.left = offsetX + "px";
+        piece.style.top = offsetY + "px";
+        const dx = (Math.random() * 200 - 100) + "px";
+        const dy = (Math.random() * 200 - 100) + "px";
+        const deg = (Math.random() * 720 - 360) + "deg";
+        piece.style.setProperty("--dx", dx);
+        piece.style.setProperty("--dy", dy);
+        piece.style.setProperty("--deg", deg);
+        container.appendChild(piece);
+        setTimeout(() => piece.remove(), 1000);
+      }
+    }
+    
+    // "No" button event listener
+    noBtn.addEventListener("click", () => {
+      noCount++;
+      
+      if (noCount >= maxNo) {
+        questionText.innerText = "There's no other choice but 'Yes' now!";
+        yesBtn.style.transform = "scale(1.6)";
+        breakNoButton();
+        return;
+      }
+      
+      // Cycle through the GIF array using local file names
+      media.src = gifArray[noCount % gifArray.length];
+      
+      // Update the question text with a dynamic message
+      if (noCount <= messageArray.length) {
+        questionText.innerText = messageArray[noCount - 1];
+      } else {
+        questionText.innerText = "Please, let your heart decide...";
+      }
+      
+      // Adjust button sizes: enlarge "Yes" and shrink "No"
+      yesBtn.style.transform = `scale(${1 + noCount * 0.1})`;
+      noBtn.style.transform = `scale(${Math.max(1 - noCount * 0.1, 0.5)})`;
+    });
+    
+    // "Yes" button event listener: final celebration!
+    yesBtn.addEventListener("click", () => {
+      container.innerHTML = `
+        <h2 style="font-size:2.5em; margin-bottom:20px;">Yayy!..... That's my girl</h2>
+        <p style="font-size:1.3em;">Mounika is now Rahul's valentine ❤️</p>
+
+        <!-- Final celebratory GIF using a local file -->
+        <video id="finalGif" src="2.mp4" loop autoplay muted alt="Celebration GIF"> </video>
+      `;
+      // Create falling heart confetti
+      for (let i = 0; i < 20; i++) {
+        let heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerText = "❤️";
+        heart.style.left = Math.random() * 100 + "%";
+        heart.style.animationDelay = Math.random() * 2 + "s";
+        heart.style.fontSize = (Math.random() * 20 + 20) + "px";
+        container.appendChild(heart);
+      }
+    });
+  </script>
+</body>
 </html>
